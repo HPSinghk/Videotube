@@ -1,6 +1,9 @@
+
 import express from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
+import { ApiError } from './utils/apiError.js'
+import { ApiResponse } from './utils/apiResponse.js'
 
 const app = express()
 
@@ -23,4 +26,20 @@ import userRouter from "./routes/user.routes.js"
 app.use("/api/v1/users",userRouter)
 
 //http://localhost:8000/api/v1/users/register
+
+app.use((err, req, res, next) => {
+    if (err instanceof ApiError) {
+      return res.status(err.statusCode).json({
+        success: false,
+        message: err.message,
+        errors: err.errors,
+      });
+    }
+    
+    res.status(500).json({
+      success: false,
+      message: 'Internal Server Error',
+    });
+  });
+  
 export { app } 
